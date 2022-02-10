@@ -1,0 +1,214 @@
+---
+title: ActiveMDX Introduction
+date: '2022-02-10'
+tags: ['open source', 'active-mdx']
+draft: false
+summary: Introduction to a cool open source project I created
+images: []
+layout: PostLayout
+---
+
+ActiveMDX is a project that lets you turn a bunch of [Mdx](https://mdxjs.com) files into structured data, so that in addition to displaying your writing in a nice way, you can automate things in the rest of the world with it as well. Whenever your writing changes, you can do things with it in the world. Whenever things in the world change, you can update your writing!
+
+- [Github Repo](https://github.com/soederpop/active-mdx)
+- [Documentation](https://active-mdx.soederpop.com/)
+- [Example Project](https://active-mdx-software-project.soederpop.com)
+- [Example Project Source Code](https://github.com/soederpop/active-mdx-software-project-starter)
+
+## Background
+
+Markdown is a great format for writing. It is just plain text with some markup for creating titles, lists, links that get displayed as HTML on a webpage. You can write a document in markdown, and display it as HTML without needing to clutter your text with HTML tags and attributes.
+
+Because Markdown is plain text, it is readable as text even without being presented as HTML. Being plain text also lends itself very well to version control, and Github is great at showing you the differences between versions, among many other things. But more than anything, it is a great way to get ideas out of your head quickly and into the world.
+
+Sometime during the mid-2010's I created a project in Ruby, called [Brief](https://github.com/datapimp/brief), which allowed me to take advantage of these aspects of Markdown.
+
+Brief allowed me to have different projects, which I called Briefcases, which were just a bunch of markdown files. Because they were hosted on GitHub, I could run code every time I pushed to the repository.
+
+I used this technology to power a consulting company I started, which I will write about in the future. Essentially the idea was, as a software consultant, I had standard templates for various documents I would write from project to project. Brief allowed me to turn this writing into data that I could do things with like export to a spreadsheet, create a bunch of github issues, and things like that.
+
+All I needed to do was get the ideas out of my head quickly, in a loosely structured way, push them up to GitHub, and a ton of sometimes tedious communication tasks were able to be automated.
+
+Brief was amazing, but it came to be just as I (regrettably) moved away from writing software in Ruby and went full JavaScript.
+
+Fast forward to 2022, and the Markdown landscape is insanely better than it was then. Software like [Mdx.js](https://mdxjs.com) in particular, is very exciting. It allows you to render your markdown documents with React components, which gives you a ton of power and flexibility.
+
+As a heavy user of this, I wanted to revive the ideas behind the Brief project but instead in JavaScript.
+
+So I created [ActiveMDX](https://www.github.com/soederpop/active-mdx)
+
+## Turning Structured Writing Into Data
+
+With ActiveMDX, the same basic conditions are in place:
+
+- I have a number of ongoing projects at any time
+- Each of these projects has a repository of markdown writing
+- The markdown writing is structured in a logical way, based on the type of document. For example, for a software project I'm working on with a team of developers, I have a folder of `epics`, `stories`, `decisions`, `daily-standups`, etc.
+- The markdown content itself is referencing things in other systems, e.g Github, Jira, Github Issues, Google Sheets, etc
+
+So I can define a model for a particular type of document
+
+```javascript
+import { Model } from '@active-mdx/core'
+
+export default class Story extends Model {
+  static statuses = ['created', 'in-progress', 'qa', 'approved', 'complete']
+
+  static get schema() {
+    const { joi } = this
+
+    return joi
+      .object({
+        meta: joi
+          .object({
+            status: joi
+              .string()
+              .required()
+              .pattern(new RegExp(`^(${this.statuses.join('|')})$`), 'valid statuses'),
+            estimates: joi
+              .object({
+                high: joi.number().required(),
+                low: joi.number().required(),
+              })
+              .unknown(true)
+              .required(),
+            github: joi.object({
+              issue: joi.number(),
+            }),
+          })
+          .required()
+          .unknown(true),
+      })
+      .unknown(true)
+  }
+
+  get defaults() {
+    return {
+      meta: {
+        status: 'created',
+        estimates: {
+          low: 0,
+          high: 0,
+        },
+      },
+    }
+  }
+
+  toJSON({ related = [], attributes = [], ...options } = {}) {
+    return super.toJSON({
+      related,
+      attributes: [
+        'description',
+        'isComplete',
+        'slug',
+        'acceptanceCriteria',
+        'mockupLinks',
+        ...attributes,
+      ],
+      ...options,
+    })
+  }
+
+  get isComplete() {
+    return this.meta.status === 'complete'
+  }
+
+  get description() {
+    const { document } = this
+    const { leadingElementsAfterTitle = [] } = document.nodes
+
+    return leadingElementsAfterTitle.map(document.utils.toString).join('')
+  }
+
+  epic() {
+    return this.belongsTo(Epic, {
+      id: (document) => document.meta.epic,
+    })
+  }
+
+  get mockupLinks() {
+    const { toString } = this.document.utils
+    return Object.fromEntries(
+      this.document
+        .querySection('Mockups')
+        .selectAll('link')
+        .map((link) => [toString(link), link.url])
+    )
+  }
+
+  get acceptanceCriteria() {
+    const { toString } = this.document.utils
+    return this.document.querySection('Acceptance Criteria').selectAll('listItem').map(toString)
+  }
+}
+```
+
+This model allows me to take the same document I write, and turn it into a JavaScript object.
+
+```javascript
+const storyData = {
+  id: 'stories/authentication/a-user-should-be-able-to-login',
+  meta: {
+    epic: 'authentication',
+    estimates: { low: 8, high: 16 },
+    status: 'in-progress',
+    github: { issue: 30 },
+    'estimates.high': '16',
+    'estimates.low': '8',
+    'github.issue': '30',
+  },
+  title: 'A User should be able to login.',
+  description: 'As a User I would like to login so that I can use the application.',
+  isComplete: false,
+  slug: 'a-user-should-be-able-to-login',
+  acceptanceCriteria: [
+    'A user can visit the signup form, supply their name, email, and password',
+    "The signup form should validate the user's information and supply errors",
+    'The user should receive a confirmation email',
+    'The user should show up in our database as confirmed after clicking the confirmation link',
+  ],
+  mockupLinks: {
+    'Invision: Login Form': 'https://invisionapp.com',
+    'Invision: Login Form Error State ': 'https://invisionapp.com',
+  },
+}
+```
+
+ActiveMDX provides me with a collection class, for working with groups of these documents as if they were a database. I can write scripts, or web applications, automated github action workflows, and a bunch of other things, to do things with this data.
+
+## ActiveMDX In Action
+
+[An example website that is built with ActiveMDX can be found here](https://active-mdx-software-demo.soederpop.com)
+
+This is a website for a hypothetical software project. The goal of this website is to act as a home for the project, so that:
+
+- stakeholders can get a real time overview of where the project is at. How much it will cost, how much time it will take.
+- the builders of the software have up to date, accurate information about the requirements for the software
+
+Software development teams (loosely) follow the agile software development methodology, which assumes that a vision for a software project can be broken down into small, trackable units of work called Stories.
+
+A Story describes some feature of the software, usually expressed in the form:
+
+```
+As a homeowner,
+I want to buy paint and paintbrushes
+So that I can improve my home's appearance.
+```
+
+From this, a designer will need to design a screen for the user to interact with, and a developer will need to write code to implement the feature. A QA team will test the feature works as it is designed and intended to function.
+
+Each story describes some work to be done by a single person or a team of people, this "work" is usually estimated ahead of time in terms of how long it will take to complete, how much it will cost, etc. Each story describes a living process that changes over time. Project Management software gives each story a status - to do, doing, done, for example.
+
+In order to make sure what is built is actually what was intended by the people funding the software project, it is very important that each story be supplemented with additional documentation, links, design mockups, acceptance criteria and things like that.
+
+If a software agency is building this software, typically they will present all of these stories to their customer, along with an estimate for time and money. These stories will form the basis of a scope of work, and eventually a contract that will guarantee the agency payment for the delivery of the work.
+
+I've yet to encounter a software company that uses simple markdown in a github repository to capture all of this information. If they do, it is only done at the beginning of a project, and eventually gets put into software like Jira, or spreadsheets.
+
+Even Github hitself has its Github Issues system, which is just a markdown document put into a database that you can assign statuses to and put deadlines on and track to completion.
+
+The problem with this is, it is very hard to remain in a flow state and write all of these things, if you have to use software like Jira (God Forbid) to capture it. Not only that, but as a developer who has to reference these stories and update their status, every minute I waste in Jira I am not in a flow state. It is a chore.
+
+ActiveMDX is something I created to solve all of this pain!
+
+Stay tuned as I write about how!
