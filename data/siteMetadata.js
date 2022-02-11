@@ -1,14 +1,14 @@
 const siteMetadata = {
   title: 'Soederpop.com - Personal blog of Jon Soeder',
   author: 'Jon Soeder',
-  headerTitle: 'Soederpop.com',
+  headerTitle: 'Your Boy Soederpop',
   description: 'Personal blog of Jon Soeder',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://soederpop.com',
   siteRepo: 'https://github.com/soederpop/www.soederpop.com',
   siteLogo: '/static/images/logo.png',
-  image: '/static/images/avatar.png',
+  image: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
   email: 'jon@chicago.com',
   github: 'https://github.com/soederpop',

@@ -2,6 +2,7 @@
 title: ActiveMDX Introduction
 date: '2022-02-10'
 tags: ['open source', 'active-mdx']
+author: soederpop
 draft: false
 summary: Introduction to a cool open source project I created
 images: []
@@ -9,6 +10,10 @@ layout: PostLayout
 ---
 
 ActiveMDX is a project that lets you turn a bunch of [Mdx](https://mdxjs.com) files into structured data, so that in addition to displaying your writing in a nice way, you can automate things in the rest of the world with it as well. Whenever your writing changes, you can do things with it in the world. Whenever things in the world change, you can update your writing!
+
+The word Active in ActiveMDX is inspired by the Active Record Pattern, and specifically, the ActiveRecord library from Ruby on Rails (a historic work of art in programming)
+
+MDX refers to [Mdx.js](https://mdxjs.com).
 
 - [Github Repo](https://github.com/soederpop/active-mdx)
 - [Documentation](https://active-mdx.soederpop.com/)
@@ -53,34 +58,6 @@ import { Model } from '@active-mdx/core'
 
 export default class Story extends Model {
   static statuses = ['created', 'in-progress', 'qa', 'approved', 'complete']
-
-  static get schema() {
-    const { joi } = this
-
-    return joi
-      .object({
-        meta: joi
-          .object({
-            status: joi
-              .string()
-              .required()
-              .pattern(new RegExp(`^(${this.statuses.join('|')})$`), 'valid statuses'),
-            estimates: joi
-              .object({
-                high: joi.number().required(),
-                low: joi.number().required(),
-              })
-              .unknown(true)
-              .required(),
-            github: joi.object({
-              issue: joi.number(),
-            }),
-          })
-          .required()
-          .unknown(true),
-      })
-      .unknown(true)
-  }
 
   get defaults() {
     return {
@@ -183,32 +160,108 @@ ActiveMDX provides me with a collection class, for working with groups of these 
 This is a website for a hypothetical software project. The goal of this website is to act as a home for the project, so that:
 
 - stakeholders can get a real time overview of where the project is at. How much it will cost, how much time it will take.
-- the builders of the software have up to date, accurate information about the requirements for the software
+- the builders of the software have up to date, accurate information about the requirements for the software.
+- the builders can access writing about the domain knowledge they need to understand what they are building, why, and how.
 
-Software development teams (loosely) follow the agile software development methodology, which assumes that a vision for a software project can be broken down into small, trackable units of work called Stories. Stories are things that can be estimated, prioritized, scheduled, started, stopped, and hopefully eventually completed.
+So much effort, people's entire jobs, revolve around processes for achieving these goals. The entire agile software development metholodogy, scrum processes, one big section of the entire org chart for a software company is focused on achieving these goals.
 
-A Story describes some feature of the software, usually expressed in the form:
+And the tools they use to do this, in my opinion, are huge wastes of creativity and energy.
 
+If these professionals all contributed to the same version controlled ActiveMDX project, then so much of the busy work that drains their energy could simply disappear.
+
+ActiveMDX can help make software ideas a reality from the idea on a napkin stage, all the way to a fully functional, delivered product.
+
+Your idea could start out in a file called `Project.mdx`.
+
+```markdown
+# E-Commerce Website Idea
+
+Some notes.
+
+## Epics
+
+### Authentication
+
+blah blah
+
+### Content Management
+
+blah blah
+
+### Shopping Experience
+
+### Inventory Management
+
+### Order Management
 ```
-As a homeowner,
-I want to buy paint and paintbrushes
-So that I can improve my home's appearance.
+
+You can then expand this into several epic documents.
+
+```shell
+$ amdx expand Project.mdx --to epics
 ```
 
-From this, a designer will need to design a screen for the user to interact with, and a developer will need to write code to implement the feature. A QA team will test the feature works as it is designed and intended to function.
+This will create several epic files, which you can edit.
 
-Each story describes some work to be done by a single person or a team of people, this "work" is usually estimated ahead of time in terms of how long it will take to complete, how much it will cost, etc. Each story describes a living process that changes over time. Project Management software gives each story a status - to do, doing, done, for example.
+```markdown
+# Authentication
 
-In order to make sure what is built is actually what was intended by the people funding the software project, it is very important that each story be supplemented with additional documentation, links, design mockups, acceptance criteria and things like that.
+Users need to register and login and stuff.
 
-If a software agency is building this software, typically they will present all of these stories to their customer, along with an estimate for time and money. These stories will form the basis of a scope of work, and eventually a contract that will guarantee the agency payment for the delivery of the work.
+## Stories
 
-I've yet to encounter a software company that uses simple markdown in a github repository to capture all of this information. If they do, it is only done at the beginning of a project, and eventually gets put into software like Jira, or spreadsheets.
+### Registration
 
-Even Github hitself has its Github Issues system, which is just a markdown document put into a database that you can assign statuses to and put deadlines on and track to completion.
+As a user I want to register so that I can use the application.
 
-The problem with this is, it is very hard to remain in a flow state and write all of these things, if you have to use software like Jira (God Forbid) to capture it. Not only that, but as a developer who has to reference these stories and update their status, every minute I waste in Jira I am not in a flow state. It is a chore.
+### Login
 
-ActiveMDX is something I created to solve all of this pain!
+As a user I want to login so that I can use the application.
+```
 
-Stay tuned as I write about how!
+You can expand those epics into individual stories
+
+```shell
+$ amdx expand epics/authentication.mdx
+```
+
+This will in turn create separate story documents.
+
+At that point you can publish all of those stories to a Google spreadsheet and have people prioritize them and provide estimates on how long they will take.
+
+<video width="100%" controls>
+  <source src="/static/videos/sheets-plugin-example.mp4" type="video/mp4" />
+</video>
+
+You can then pull that information back into your documents, and version control it.
+
+```shell
+$ amdx action sheets:sync --name estimates
+$ git commit -m "First round of estimates and prioritization finished and added to our docs" -a
+```
+
+You show your client your proposal:
+
+![Scope Of Work Example](/static/images/scope-of-work-example.png)
+
+You send the spreadsheet to the attorneys so they can include it in the statement of work and contracts.
+
+Designers, Product Owners, Architects, aka the suits, should all write markdown and use github and add detailed requirements, acceptance criteria, diagrams, mockups, and all of the things required to build the right thing.
+
+They version control their work like developers do. Github Actions workflows process this writing and does things with it.
+
+For example, you publish all of those stories to Github Issues.
+
+<video width="100%" controls>
+  <source src="/static/videos/github-sync-example.mp4" type="video/mp4" />
+</video>
+
+All of this documentation lives right along side the code, and is accessible directly within the developer's environment.
+
+This helps them build the thing faster than ever. They spend less time in meetings, because anyone who wants a view into the status of things only has to go to the website and it is up to date!
+
+The quality of their work is way higher than normal, because all of the acceptance criteria in the stories were extracted out by a tool and used to generate end to end tests.
+
+The possibilities really are endless.
+
+ActiveMDX can take asynchronous communication to an entire new level within most software organizations, and make everyone happier and better at their jobs in the process.
