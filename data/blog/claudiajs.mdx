@@ -71,6 +71,40 @@ Having a pre-existing structure that works to begin in will give you a place to 
 
 <CreatingYourFirstProject />
 
+## Testing your app locally
+
+When we're developing real applications, we test them out on our own computers first before publishing them to the real world.
+
+You can run your application on your own computer too.
+
+To do that we need to use a library from npm called [claudia-local-api](https://www.npmjs.com/package/claudia-local-api).
+
+This library simulates the way AWS Lambda works, so you can test out your code before releasing it.
+
+To install it, run the following command:
+
+```shell
+$ npm install claudia-local-api -g
+```
+
+This `-g` flag says to install it globally, which means it will be available to all of your projects.
+
+Once installed you can run the following command to start your app on your own computer
+
+```shell
+$ claudia-local-api --api-module app.js
+```
+
+If you open your browser to [http://localhost:3000](http://localhost:3000) you should see your application running.
+
+`localhost` is the name of your own computer on the network. `:3000` is the port that the application is lsitening on.
+
+Nobody but you can access the application that is running this way.
+
+If you want to publish the application to the world, you need to deploy it to AWS.
+
+If you want, you can skip this step if you already get the idea!
+
 ## Publishing your program to AWS
 
 <DeployingYourApp />
@@ -150,9 +184,13 @@ This code contains an HTML Form tag
 </form>
 ```
 
+Form tags are for communicating back to the server.
+
 Notice it has a `POST` method, and a `/latest/hello` action.
 
-Also in the `app.js` file, notice this code:
+When the user clicks the submit button, our web browser will make a POST style request to that URL.
+
+In the `app.js` file, notice this code:
 
 ```javascript
 api.post('/hello', function (event) {
@@ -180,4 +218,18 @@ This code is taking whatever the user typed in the input field, and displaying H
 
 Again, this is pretty useless, but it shows you the core of what web application programming is about.
 
-Applications which run on the client, talking to a server.
+> Applications which run on the client, talking to a server.
+
+This application shows the core model of web applications everywhere.
+
+- Present the user with a form and a button
+- Send information to the server when they click that button
+- Present the user with a new page that does something with this information
+
+A real server would be more advanced, and do more complicated things. A lot of things you can do on the client or in the browser itself, without needing a server. The code would need to be organized differently, for a more complex application. These are all things you will need to learn about to build whatever application you are imagining.
+
+## Conclusion
+
+By following this tutorial, you were able to write code, change code, send it to AWS, and share a URL with somebody who wants to use that code. You did it using tools that professional software developers use every day and make great money with.
+
+That's a big accomplishment! You have a lot more to learn, but that is a sample of what real players do every day.
