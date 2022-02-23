@@ -1,0 +1,29 @@
+import Image from '@/components/Image'
+
+Now we're going to publish our code to AWS.
+
+Inside the Terminal in VSCode, run the following. (Again, type it in, everything after the $.)
+
+```shell
+$ claudia create --region us-east-1 --api-module app
+```
+
+This code creates an AWS Lambda function inside AWS, as well as an API Gateway resource that is connected to that lambda.
+
+In AWS, API Gateway is responsible for providing you with a URL, and directing anybody who visits that URL to run our code. AWS Lambda is responsible for running our code.
+
+This will create a file called `claudia.json` that links to the AWS Lambda and API Gateway resources that were created in AWS for you. This file is so that we can later update our code if we make changes to it.
+
+This command will also output a URL for this function.
+
+<Image
+  src="/static/images/claudiajs-tutorial/claudia-deploy-results.png"
+  height={1742 / 2}
+  width={1742 / 2}
+/>
+
+Wait a minute or two. When you click on this URL you should see:
+
+<Image src="/static/images/claudiajs-tutorial/app-screenshot.png" height={562} width={765} />
+
+If you do, congrats, you've launched your first program!

@@ -1,0 +1,183 @@
+---
+title: Claudia.js - From Zero to Your First App on AWS
+date: '2022-02-12'
+tags: ['open-source', 'aws', 'lambda', 'serverless']
+draft: false
+summary: An introduction to Claudia.js
+images: []
+layout: PostLayout
+---
+
+import CreatingYourFirstProject from '@/content/claudiajs/creating-your-first-project.mdx'
+import BeforeYouBegin from '@/content/claudiajs/before-you-begin.mdx'
+import DeployingYourApp from '@/content/claudiajs/deploying-your-app.mdx'
+
+I have been in love with a woman named Claudia for longer than I've been a computer programmer.
+
+Only recently did I discover an amazing project I should have created myself called [Claudia.js](https://claudiajs.com/).
+
+> Claudia makes it easy to deploy Node.js projects to AWS Lambda and API Gateway. It automates all the error-prone deployment and configuration tasks, and sets everything up the way JavaScript developers expect out of the box.
+> This means that you can get started with Lambda microservices easily, and focus on solving important business problems instead of dealing with AWS deployment workflows.
+
+To make up for missing such a no-brainer opportunity for a name to use for one of my JavaScript projects, I have decided to use Claudia.js and AWS Lambda as a platform to help my son pursue his interest in programming. Serverless and edge computing are the future, so knowing some AWS and JavaScript will be a good foundation to start with.
+
+The goal of this post is to provide an introduction for going from zero to deploying a Node.js application to AWS Lambda. Claudia.js really makes creating node.js applications, and allowing other people to access them, as easy as can be. That I would rely on it as something somebody with little to no experience programming could use to launch their first application should speak volumes, considering I have also used it professionally to:
+
+- power the e-commerce websites of multiple big brands
+- power extremely high traffic flash sale websites for popular youtube influencers
+- power event driven workflows for critical applications used by one of the largest car rental companies in the world.
+
+So Claudia.js powerful, like the woman I mentioned. Claudiajs is also easy to work with, unlike that same woman.
+
+## Getting Started
+
+What you will need:
+
+- Install Visual Studio Code on your computer
+- Create an AWS Account. You can use the free tier.
+- Node.js installed on your computer
+- A lot of patience and time.
+
+If you have never programmed JavaScript before, don't worry. I have been a professional programmer for 20+ years and my first programs were all copied and pasted code I didn't understand when I barely knew the language I was programming in. Before I started, I did have a decent understanding of computers and networking, as well as basic proficiency with the command line.
+
+If you don't know these, and don't have somebody to teach you:
+
+1. Reach out to me at jon@chicago.com I will be happy to help. I was a straight up nuissance to everyone who knew more than me when I was getting started, so I am obligated to pay it back.
+2. Watch videos on TikTok, Youtube
+3. Find an online course
+
+Having a pre-existing structure that works to begin in will give you a place to explore experiment and learn. That is what I hope to help you accomplish by the end of this post.
+
+- You will write some code.
+- You will use the command line to run a command which publishes your code to AWS.
+- You will have a URL to put into your web browser and interact with your application.
+- You will begin to see the difference between a client and a server.
+- You will begin to see how JavaScript can be used for both of these things.
+
+## Table Of Contents
+
+- Before you Begin
+- Creating your first project
+- Publishing a version of your program to AWS
+- Using your application from your phone, ipad, or computer browser.
+- Running your app locally
+- Walk through what we built
+
+## Before You Begin
+
+<BeforeYouBegin />
+
+## Creating Your First Project
+
+<CreatingYourFirstProject />
+
+## Publishing your program to AWS
+
+<DeployingYourApp />
+
+## Using your application
+
+Once you have the URL to your application, it is actually live on the internet for everyone to use. You can text or email yourself the URL and open it up in your phone.
+
+What we've launched is a pretty trivial application, but I want to use it to show you an important concept in web development.
+
+Let's go to our application.
+
+Mine, for as long as it is up, [can be found here](https://tfig3eyslc.execute-api.us-east-1.amazonaws.com/latest)
+
+Your url will be different, hopefully you copy and paste it from the step above.
+
+## Walkthrough of what we've built
+
+A web application consists of two major parts. You have the client, and the server.
+
+In our `app.js` file notice the following block:
+
+```javascript
+api.get('/', function () {
+  return new api.ApiResponse(
+    `
+      <html>
+        <head>
+          <title>My First Claudia.js Project</title>
+        </head>
+        <body>
+          <h1>Say Hello</h1>
+          <form action="/latest/hello" method="POST">
+            <label>What is your name?</label>
+            <input type="text" name="name" />
+            <input type="submit" value="Say Hello" />
+          </form>
+        </body>
+      </html>
+    `,
+    {
+      'Content-Type': 'text/html',
+    }
+  )
+})
+```
+
+This block is saying, when a user visits the root of the application, return some HTML.
+
+```html
+<html>
+  <head>
+    <title>My First Claudia.js Project</title>
+  </head>
+  <body>
+    <h1>Say Hello</h1>
+    <form action="/latest/hello" method="POST">
+      <label>What is your name?</label>
+      <input type="text" name="name" />
+      <input type="submit" value="Say Hello" />
+    </form>
+  </body>
+</html>
+```
+
+The web browser will turn this HTML into a page, with an input the user can type in, and a button they can click.
+
+This code is **The Client Side** of our application.
+
+This code contains an HTML Form tag
+
+```html
+<form action="/latest/hello" method="POST">
+  <label>What is your name?</label>
+  <input type="text" name="name" />
+  <input type="submit" value="Say Hello" />
+</form>
+```
+
+Notice it has a `POST` method, and a `/latest/hello` action.
+
+Also in the `app.js` file, notice this code:
+
+```javascript
+api.post('/hello', function (event) {
+  return new api.ApiResponse(
+    `
+      <html>
+        <head>
+          <title>My First Claudia.js Project</title>
+        </head>
+        <body>
+          <h1>Hello ${event.post.name}</h1>
+        </body>
+      </html>
+    `,
+    {
+      'Content-Type': 'text/html',
+    }
+  )
+})
+```
+
+This code is the **The Server Side** of our application. It is saying, if a web browser makes a POST request to the `/hello` URL, run this code.
+
+This code is taking whatever the user typed in the input field, and displaying HTML which says hello to that person.
+
+Again, this is pretty useless, but it shows you the core of what web application programming is about.
+
+Applications which run on the client, talking to a server.

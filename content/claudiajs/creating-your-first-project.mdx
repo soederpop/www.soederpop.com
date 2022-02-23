@@ -1,0 +1,120 @@
+import Image from '@/components/Image'
+
+[The source code for this can be found on github.](https://github.com/soederpop/www.soederpop.com/tree/master/tutorials/first-claudiajs-project)
+
+## Follow these steps
+
+1. Create a new folder, and open that folder in Visual Studio Code
+
+This folder will be empty at first. That is ok, we are going to start adding files to it.
+
+In VSCode, open a new terminal
+
+<Image
+  src="/static/images/claudiajs-tutorial/open-new-terminal.png"
+  width={1976 / 2}
+  height={412 / 2}
+/>
+
+2. Create a package.json file
+
+In the terminal you opened up in VSCode, type the following. ( Don't copy and paste, type everything after the dollar sign. )
+
+```shell
+$ npm init --yes
+```
+
+3. Install Claudia.js
+
+```shell
+$ npm install claudia --save-dev
+```
+
+Claudia.js is software that runs on your computer only, and is used to publish your app to AWS.
+
+When we install it this way, we're installing it as a development dependency.
+
+This means our app doesn't need it to run, but we need it to develop our app.
+
+Claudia API Builder is software that our app runs. So we install it as a normal dependency.
+
+```shell
+$ npm install claudia-api-builder --save
+```
+
+You'll notice after doing this, our `package.json` file has the following in it:
+
+```json
+{
+  "name": "first-claudiajs-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "claudia-api-builder": "^4.1.2"
+  },
+  "devDependencies": {
+    "claudia": "^5.14.0"
+  }
+}
+```
+
+4. Create a app.js handler file
+
+Create a new file called `app.js` and paste the following code into it. Don't worry about what it does yet.
+
+```javascript
+var ApiBuilder = require('claudia-api-builder'),
+  api = new ApiBuilder()
+
+module.exports = api
+
+api.post('/hello', function (event) {
+  return new api.ApiResponse(
+    `
+      <html>
+        <head>
+          <title>My First Claudia.js Project</title>
+        </head>
+        <body>
+          <h1>Hello ${event.post.name}</h1>
+        </body>
+      </html>
+    `,
+    {
+      'Content-Type': 'text/html',
+    }
+  )
+})
+
+api.get('/', function () {
+  return new api.ApiResponse(
+    `
+      <html>
+        <head>
+          <title>My First Claudia.js Project</title>
+        </head>
+        <body>
+          <h1>Say Hello</h1>
+          <form action="/latest/hello" method="POST">
+            <label>What is your name?</label>
+            <input type="text" name="name" />
+            <input type="submit" value="Say Hello" />
+          </form>
+        </body>
+      </html>
+    `,
+    {
+      'Content-Type': 'text/html',
+    }
+  )
+})
+```
+
+Save that file. You're done. You now have an application that you can publish, or deploy, to AWS and share with your friends.

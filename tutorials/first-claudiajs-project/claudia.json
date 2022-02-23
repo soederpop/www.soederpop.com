@@ -1,0 +1,11 @@
+{
+  "lambda": {
+    "role": "first-claudiajs-project-executor",
+    "name": "first-claudiajs-project",
+    "region": "us-east-1"
+  },
+  "api": {
+    "id": "tfig3eyslc",
+    "module": "app"
+  }
+}

@@ -1,0 +1,53 @@
+import Image from '@/components/Image'
+
+### Download and Install Visual Studio Code
+
+- If you're on windows, here is a [youtube tutorial for installing VSCode on Windows](https://www.youtube.com/watch?v=MlIzFUI1QGA).
+- If you're on Mac, here is a [youtube tutorial for installing VSCode on Mac](https://www.youtube.com/watch?v=tCfbi5PF1y0)
+
+### Install Node.js
+
+- If you're on windows, here is a [youtube tutorial for installing node.js on windows](https://www.youtube.com/watch?v=__7eOCxJyow)
+- If you're on Mac, here is a [youtube tutorial for installing node.js on Mac](https://www.youtube.com/watch?v=0i-gstqgjuE)
+
+### Setup your AWS Account
+
+If you're a student, you should talk to your adult about what you are doing, and maybe have them help you with this step.
+
+Amazon Web Services works on a pay for what you use model, so if you accidentally give somebody else access to your account they can cost you a lot of money.
+
+There are ways to prevent this, but that would be an entire article. Please proceed with caution on this step.
+
+[Follow the steps here to create your AWS Account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/)
+
+You need to create some security credentials, by clicking on the menu on the top right.
+
+> **Very Important** the security keys we're creating here should never be posted online, or shared with anyone. If you're streaming you want to make sure they don't show up on your screen. If somebody gets ahold of these, they can rack up a bill on your account. Hopefully you are using a free tier AWS account, like you can [get as a student by applying here](https://aws.amazon.com/about-aws/whats-new/2015/05/aws-educate-students-and-educators-can-access-aws-technology-cloud-courses-training-and-collaboration-tools/)
+
+<Image
+  src="/static/images/claudiajs-tutorial/security-credentials.png"
+  width={1246 / 2}
+  height={798 / 2}
+/>{' '}
+
+You need to create Access Keys
+
+<Image
+  src="/static/images/claudiajs-tutorial/create-new-access-key.png"
+  width={3002 / 2}
+  height={1196 / 2}
+/>
+
+And store them in your AWS Credentials file.
+
+If you're on windows, that will be in `C:\Users\USERNAME\.aws\credentials`.
+
+If you're on mac or linux, that will be `/home/USERNAME/.aws/credentials` or `~/.aws/credentials`
+
+You'll want that file to look like, after you've pasted in your values
+
+```
+[default]
+access_key_id=ABCDEFG
+secret_access_key=HIJKLMNOPQRSTUVWXYZ
+```
